@@ -464,12 +464,19 @@ todoListConstructorPrototype.saveNewTodo = function (todoItemData)
         if(request.readyState === 4) {
             if(request.status === 200) {
                 resId = JSON.parse(request.responseText).id;
+            } else {
+                resId=null;
             }
         }
     }
     request.open('post', '/records',false);
     request.setRequestHeader( 'Content-Type', 'application/json' );
-    request.send(JSON.stringify(todoItemData));
+    try {
+        request.send(JSON.stringify(todoItemData));
+    } catch (e){
+        alert("something bad :( try later");
+        document.location.reload();
+    }
     return resId;
 };
 
@@ -480,7 +487,12 @@ todoListConstructorPrototype.updateTodo = function (todoItemData)
     var request = new XMLHttpRequest();
     request.open('put', '/records', false);
     request.setRequestHeader( 'Content-Type', 'application/json' );
-    request.send(JSON.stringify(todoItemData));
+    try {
+        request.send(JSON.stringify(todoItemData));
+    } catch (e){
+        alert("something bad :( try later");
+        document.location.reload();
+    }
 };
 
 
@@ -491,7 +503,13 @@ todoListConstructorPrototype.deleteTodo = function (todoItemData)
     var request = new XMLHttpRequest();
     request.open('delete', '/records', false);
     request.setRequestHeader( 'Content-Type', 'application/json' );
-    request.send(JSON.stringify(todoItemData));
+    try {
+        request.send(JSON.stringify(todoItemData));
+    } catch (e)
+    {
+        alert("something bad :( try later");
+        document.location.reload();
+    }
 };
 
 
@@ -508,6 +526,11 @@ todoListConstructorPrototype.createItem = function (todoItemData, rootElem) {
     } else
     {
         idKey = this.saveNewTodo(todoItemData);
+        if (idKey===null)
+        {
+            alert("something bad :( try later");
+            return null;
+        }
     }
 
 
@@ -573,7 +596,11 @@ todoListConstructorPrototype._onItemChange = function (itemModel) {
 
 todoListConstructorPrototype._onItemRemove = function (itemId) {
     var todoItemComponent = this._getItemById(itemId);
-    this.deleteTodo({id: itemId});
+    if (!this.deleteTodo({id: itemId})){
+        alert("something bad :( try later");
+        return this;
+
+    }
     if (todoItemComponent) {
         todoItemComponent.off('change', this._onItemChange, this);
         todoItemComponent.off('remove', this._onItemRemove, this);
